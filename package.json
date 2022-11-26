@@ -3,8 +3,15 @@
   "version": "0.0.1",
   "description": "Bloat-free inversion of control container for Typescript based on code-generation",
   "main": "index.js",
+  "bin": "./build/prebuild.js",
+  "files": [
+    "src",
+    "build",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "npm run test",
+    "test": "echo No test",
     "build": "tsc",
     "example": "cd example && tsc && node ../build/prebuild.js --dev && node dist/example/index.js"
   },
