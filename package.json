@@ -2,7 +2,7 @@
   "name": "genioc",
   "version": "0.0.4",
   "description": "Bloat-free inversion of control container for Typescript based on code-generation",
-  "main": "index.js",
+  "main": "./build/index.js",
   "bin": "./bin/cli",
   "types": "./build/index.d.ts",
   "repository": {
