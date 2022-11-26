@@ -1,8 +1,10 @@
+import { IMailer } from "./mailer";
 import { IUserRepository } from "./user.repository";
 
 export class UserService {
   constructor(
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    private readonly mailer: IMailer
   ) {
     
   }
@@ -13,5 +15,11 @@ export class UserService {
         fullname,
         password: Math.random().toString()
     });
+
+    this.mailer.sendMail(
+      email,
+      "Welcome to our app!",
+      "Here is your register email confirmation"
+    );
   }
 }

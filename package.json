@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test",
     "build": "tsc",
-    "example": "tsc && node build/prebuild.js --dev example"
+    "example": "cd example && tsc && node ../build/prebuild.js --dev && node dist/example/index.js"
   },
   "keywords": [
     "di",

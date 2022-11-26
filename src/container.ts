@@ -1,6 +1,6 @@
 export type Newable<T> = new (...args: any[]) => T;
 
-export type DefaultDependencyToken = string | symbol | Function;
+export type DefaultDependencyToken = symbol | Function;
 
 export type DependencyBinding = {
   type: "class";
@@ -16,9 +16,7 @@ export interface IPrebuildMetadata {
   injectableTypes: Set<string>;
 }
 
-export class AbstractContainer<
-  AllowedInjectableToken extends DefaultDependencyToken
-> {
+export class AbstractContainer<AllowedInjectableToken extends string | DefaultDependencyToken> {
   private prebuildMetadata: ConstructorsDependenciesMetadata;
 
   private instances: Map<symbol, any>;
@@ -76,8 +74,6 @@ export class AbstractContainer<
   public get<T>(tokenOrClass: AllowedInjectableToken): T {
     return this.getOrResolve(tokenOrClass);
   }
-
-  
 
   public bind(token: AllowedInjectableToken, to: Function) {
     this.bindings.set(this.toSymbolToken(token), {
