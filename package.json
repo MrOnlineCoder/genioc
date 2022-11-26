@@ -1,0 +1,22 @@
+{
+  "name": "genioc",
+  "version": "0.0.1",
+  "description": "Bloat-free inversion of control container for Typescript based on code-generation",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test",
+    "build": "tsc",
+    "example": "tsc && node build/prebuild.js --dev example"
+  },
+  "keywords": [
+    "di",
+    "ioc",
+    "ts"
+  ],
+  "author": "Nikita Kogut",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "typescript": "^4.9.3"
+  }
+}
