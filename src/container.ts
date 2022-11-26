@@ -1,6 +1,6 @@
 export type Newable<T> = new (...args: any[]) => T;
 
-export type DefaultDependencyToken = string | symbol;
+export type DefaultDependencyToken = string | symbol | Function;
 
 export type DependencyBinding = {
   type: "class";
@@ -8,19 +8,21 @@ export type DependencyBinding = {
 };
 
 export type ConstructorsDependenciesMetadata = {
-    [className: string]: string[];
-  }
+  [className: string]: string[];
+};
 
 export interface IPrebuildMetadata {
   constructors: ConstructorsDependenciesMetadata;
   injectableTypes: Set<string>;
 }
 
-export class AbstractContainer<AllowedInjectableToken extends DefaultDependencyToken> {
+export class AbstractContainer<
+  AllowedInjectableToken extends DefaultDependencyToken
+> {
   private prebuildMetadata: ConstructorsDependenciesMetadata;
 
-  private instances: Map<AllowedInjectableToken, any>;
-  private bindings: Map<AllowedInjectableToken, DependencyBinding>;
+  private instances: Map<symbol, any>;
+  private bindings: Map<symbol, DependencyBinding>;
 
   constructor(metadata: ConstructorsDependenciesMetadata) {
     this.instances = new Map();
@@ -28,20 +30,33 @@ export class AbstractContainer<AllowedInjectableToken extends DefaultDependencyT
     this.prebuildMetadata = metadata;
   }
 
+  private toSymbolToken(token: AllowedInjectableToken): symbol {
+    if (typeof token == "symbol") {
+      return token;
+    } else if (typeof token === "string") {
+      return Symbol.for(token);
+    } else if (typeof token === "function") {
+      return Symbol.for((token as Function).name);
+    }
+
+    throw new Error(`Unsupported token provided`);
+  }
+
   private getOrResolve<T>(token: AllowedInjectableToken): T {
-    const existingInstance = this.instances.get(token);
+    const bindableToken = this.toSymbolToken(token);
+
+    const existingInstance = this.instances.get(bindableToken);
 
     if (existingInstance) return existingInstance;
 
-    const binding = this.bindings.get(token);
+    const binding = this.bindings.get(bindableToken);
 
     if (!binding)
       throw new Error(`No binding was found for ${token.toString()}`);
 
     const constructor: Newable<T> = binding.classConstructor as Newable<T>;
 
-    const dependenciesNames =
-      this.prebuildMetadata[constructor.name] || [];
+    const dependenciesNames = this.prebuildMetadata[constructor.name] || [];
 
     const dependencies = [];
 
@@ -53,31 +68,26 @@ export class AbstractContainer<AllowedInjectableToken extends DefaultDependencyT
 
     const instance = new constructor(...dependencies);
 
-    this.instances.set(token, instance);
+    this.instances.set(bindableToken, instance);
 
     return instance;
   }
 
-  public get<T>(tokenOrClass: AllowedInjectableToken | Function): T {
-    const token =
-      typeof tokenOrClass === "function"
-        ? Symbol.for(tokenOrClass.name)
-        : tokenOrClass;
-
-    return this.getOrResolve(token as AllowedInjectableToken);
+  public get<T>(tokenOrClass: AllowedInjectableToken): T {
+    return this.getOrResolve(tokenOrClass);
   }
 
+  
+
   public bind(token: AllowedInjectableToken, to: Function) {
-    this.bindings.set(token, {
+    this.bindings.set(this.toSymbolToken(token), {
       type: "class",
       classConstructor: to,
     });
   }
 
   public bindSelf(arg: Function) {
-    const classSymbol = Symbol.for(arg.name) as AllowedInjectableToken;
-
-    this.bindings.set(classSymbol, {
+    this.bindings.set(Symbol.for(arg.name), {
       type: "class",
       classConstructor: arg,
     });

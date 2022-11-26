@@ -18,9 +18,9 @@
     to continuously watch after files
 */
 
-import { AbstractContainer } from "../src";
+import { AbstractContainer, DefaultDependencyToken } from "../src";
 
-export type GeneratedDependencyToken = "IUserRepository";
+export type GeneratedDependencyToken = "IUserRepository" | DefaultDependencyToken;
 
 const Container = new AbstractContainer<GeneratedDependencyToken>(
   {
