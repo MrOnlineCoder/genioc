@@ -1,10 +1,12 @@
+import { ILogger } from "./logger";
 import { IMailer } from "./mailer";
 import { IUserRepository } from "./user.repository";
 
 export class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly mailer: IMailer
+    private readonly mailer: IMailer,
+    private readonly logger: ILogger
   ) {
     
   }
@@ -21,5 +23,7 @@ export class UserService {
       "Welcome to our app!",
       "Here is your register email confirmation"
     );
+
+    this.logger.log(`Registered new user ${fullname} (${email})`);
   }
 }

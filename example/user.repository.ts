@@ -10,7 +10,7 @@ export class UserRepository implements IUserRepository {
     save(user: IUser): void {
         this.users.push(user);
 
-        console.log(`Saved user ${user.email}`)
+        console.log(`Saved user ${user.email} to database.`)
     }
 
 }
