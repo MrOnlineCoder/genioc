@@ -20,14 +20,16 @@
 
 import { AbstractContainer, DefaultDependencyToken } from "../src";
 
-export type GeneratedDependencyToken = "IUserRepository" | "IMailer" | "ILogger" | DefaultDependencyToken;
+export type GeneratedDependencyToken = "IConfig" | "IUserRepository" | "IMailer" | "ILogger" | DefaultDependencyToken;
 
 const Container = new AbstractContainer<GeneratedDependencyToken>(
   {
   "AbstractContainer": [],
   "UserRepository": [],
   "ConsoleLogger": [],
-  "ConsoleMailer": [],
+  "ConsoleMailer": [
+    "IConfig"
+  ],
   "UserService": [
     "IUserRepository",
     "IMailer",

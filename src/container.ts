@@ -3,8 +3,8 @@ export type Newable<T> = new (...args: any[]) => T;
 export type DefaultDependencyToken = symbol | Function;
 
 export type DependencyBinding = {
-  type: "class";
-  classConstructor: Function;
+  classConstructor?: Function;
+  constantValue?: any;
 };
 
 export type ConstructorsDependenciesMetadata = {
@@ -16,7 +16,9 @@ export interface IPrebuildMetadata {
   injectableTypes: Set<string>;
 }
 
-export class AbstractContainer<AllowedInjectableToken extends string | DefaultDependencyToken> {
+export class AbstractContainer<
+  AllowedInjectableToken extends string | DefaultDependencyToken
+> {
   private prebuildMetadata: ConstructorsDependenciesMetadata;
 
   private instances: Map<symbol, any>;
@@ -52,23 +54,27 @@ export class AbstractContainer<AllowedInjectableToken extends string | DefaultDe
     if (!binding)
       throw new Error(`No binding was found for ${token.toString()}`);
 
-    const constructor: Newable<T> = binding.classConstructor as Newable<T>;
+    if (binding.classConstructor) {
+      const constructor: Newable<T> = binding.classConstructor as Newable<T>;
 
-    const dependenciesNames = this.prebuildMetadata[constructor.name] || [];
+      const dependenciesNames = this.prebuildMetadata[constructor.name] || [];
 
-    const dependencies = [];
+      const dependencies = [];
 
-    for (const depName of dependenciesNames) {
-      dependencies.push(
-        this.getOrResolve(Symbol.for(depName) as AllowedInjectableToken)
-      );
+      for (const depName of dependenciesNames) {
+        dependencies.push(
+          this.getOrResolve(Symbol.for(depName) as AllowedInjectableToken)
+        );
+      }
+
+      const instance = new constructor(...dependencies);
+
+      this.instances.set(bindableToken, instance);
+    } else if (binding.constantValue) {
+      this.instances.set(bindableToken, binding.constantValue);
     }
 
-    const instance = new constructor(...dependencies);
-
-    this.instances.set(bindableToken, instance);
-
-    return instance;
+    return this.instances.get(bindableToken);
   }
 
   public get<T>(tokenOrClass: AllowedInjectableToken): T {
@@ -77,14 +83,18 @@ export class AbstractContainer<AllowedInjectableToken extends string | DefaultDe
 
   public bind(token: AllowedInjectableToken, to: Function) {
     this.bindings.set(this.toSymbolToken(token), {
-      type: "class",
       classConstructor: to,
+    });
+  }
+
+  public bindValue<T = any>(token: AllowedInjectableToken, value: T) {
+    this.bindings.set(this.toSymbolToken(token), {
+      constantValue: value,
     });
   }
 
   public bindSelf(arg: Function) {
     this.bindings.set(Symbol.for(arg.name), {
-      type: "class",
       classConstructor: arg,
     });
   }
