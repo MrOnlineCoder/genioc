@@ -141,11 +141,12 @@ container.bind('IUserRepository', SqlUserRepository);
 ## Command line usage
 
 ```
-genioc [--dev] [--watch | -w] [project directory]
+genioc [--dev] [--watch | -w] [--output | -o <output path>] [project directory]
 ```
 * `--dev` - only used when testing genioc example itself
 * `--watch` - starts in watch mode, which will automatically rebuild your IoC container when source code is changed
 * `project directory` - path to your project with tsconfig.json. If not used, it will use current process working directory.
+* `--output | -o <path>` - specify name/path for output container file, *relative* to project directory
 
 
 ## Author
