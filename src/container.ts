@@ -1,6 +1,6 @@
 export type Newable<T> = new (...args: any[]) => T;
 
-export type DefaultDependencyToken = symbol | Function;
+export type DefaultDependencyToken = string | symbol | Function;
 
 export type DependencyBinding = {
   classConstructor?: Function;
@@ -17,7 +17,7 @@ export interface IPrebuildMetadata {
 }
 
 export class AbstractContainer<
-  AllowedInjectableToken extends string | DefaultDependencyToken
+  AllowedInjectableToken extends DefaultDependencyToken
 > {
   private prebuildMetadata: ConstructorsDependenciesMetadata;
 
@@ -42,7 +42,31 @@ export class AbstractContainer<
     throw new Error(`Unsupported token provided`);
   }
 
-  private getOrResolve<T>(token: AllowedInjectableToken): T {
+  private makeCircularResolveProxy(internalToken: AllowedInjectableToken) {
+    const _container = this;
+
+    //for circular dependencies, we inject proxy which will resolve to 
+    return new Proxy(
+      {},
+      {
+        get(target, property, receiver) {
+          const instance = _container.get(internalToken) as any;
+
+          return Reflect.get(instance, property, receiver);
+        },
+        set(target, property, value, receiver) {
+          const instance = _container.get(internalToken) as any;
+
+          return Reflect.set(instance, property, value, receiver);
+        },
+      }
+    );
+  }
+
+  private getOrResolve<T>(
+    token: AllowedInjectableToken,
+    resolveParents: symbol[] = []
+  ): T {
     const bindableToken = this.toSymbolToken(token);
 
     const existingInstance = this.instances.get(bindableToken);
@@ -62,8 +86,21 @@ export class AbstractContainer<
       const dependencies = [];
 
       for (const depName of dependenciesNames) {
+        //if we encountered circular dependency, use a proxy
+        if (resolveParents.includes(Symbol.for(depName))) {
+          dependencies.push(
+            this.makeCircularResolveProxy(
+              Symbol.for(depName) as AllowedInjectableToken
+            )
+          );
+          continue;
+        }
+
         dependencies.push(
-          this.getOrResolve(Symbol.for(depName) as AllowedInjectableToken)
+          this.getOrResolve(Symbol.for(depName) as AllowedInjectableToken, [
+            ...resolveParents,
+            bindableToken,
+          ])
         );
       }
 

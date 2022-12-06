@@ -229,6 +229,12 @@ genioc [--dev] [--watch | -w] [--output | -o <output path>] [project directory]
 * `--output | -o <path>` - specify name/path for output container file, *relative* to project directory
 * `project directory` - path to your project with tsconfig.json. If not used, it will use current process working directory.
 
+Run this tool to re-build dependency metadata for your project. You can use run this before each build or just use it in watch mode.
+
+
+## Circular dependencies
+
+`genioc` container is capable of resolving circular dependencies automatically, you can [the example](example/circular.ts). No additional decorators or wrappers needed.
 
 ## Author
 Nikita Kogut
