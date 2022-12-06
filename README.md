@@ -234,7 +234,7 @@ Run this tool to re-build dependency metadata for your project. You can use run 
 
 ## Circular dependencies
 
-`genioc` container is capable of resolving circular dependencies automatically, you can [the example](example/circular.ts). No additional decorators or wrappers needed.
+`genioc` container is capable of resolving circular dependencies automatically, you can check [the example](example/circular.ts). No additional decorators or wrappers needed.
 
 ## Author
 Nikita Kogut
