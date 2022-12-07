@@ -229,12 +229,18 @@ genioc [--dev] [--watch | -w] [--output | -o <output path>] [project directory]
 * `--output | -o <path>` - specify name/path for output container file, *relative* to project directory
 * `project directory` - path to your project with tsconfig.json. If not used, it will use current process working directory.
 
-Run this tool to re-build dependency metadata for your project. You can use run this before each build or just use it in watch mode.
+Run this tool to re-build dependency tree for your project. You can run this before each build or just use it in watch mode.
 
 
 ## Circular dependencies
 
 `genioc` container is capable of resolving circular dependencies automatically, you can check [the example](example/circular.ts). No additional decorators or wrappers needed.
+
+## Ways of injection
+
+The main way of injection a dependency is using the constructor injection, and it should be the preferred one.
+
+You can resolve them also in runtime by using `container.get` method, however, again, this is not dependency injection in classical form then.
 
 ## Author
 Nikita Kogut
