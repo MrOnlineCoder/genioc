@@ -8,6 +8,8 @@ In Java or PHP, because of powerful built-in reflection features, you can inject
 
 ```java
 class UserService {
+    private final IUserRepository userRepo;
+
     public UserService(IUserRepository userRepo) {
         this.userRepo = userRepo;
     }
@@ -16,7 +18,7 @@ class UserService {
 
 in current TS/JS solutions, you will have either to:
 
-1) use tokens with decorators:
+1) use tokens with decorators (via old `reflect-metadata`):
 
 ```ts
 const UserRepositoryIdentifier = Symbol.for('UserRepository')
@@ -197,6 +199,22 @@ interface IAppConfig {
 
 container.bindValue<IAppConfig>("IAppConfig", {
     niceDog: true
+});
+```
+
+### container.bindFactory\<T\>(token, factory: () => T)
+
+Binds `token` to a factory function, which will be called every time you try to obtain an instance by this token.
+
+```ts
+interface ICurentTimeProvider {
+    time: number;
+} 
+
+container.bindFactory<ICurentTimeProvider>("ICurentTimeProvider", () => {
+    return {
+        time: Date.now()
+    }
 });
 
 ```

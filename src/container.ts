@@ -5,6 +5,7 @@ export type DefaultDependencyToken = string | symbol | Function;
 export type DependencyBinding = {
   classConstructor?: Function;
   constantValue?: any;
+  factoryFunction?: () => any;
 };
 
 export type ConstructorsDependenciesMetadata = {
@@ -109,6 +110,10 @@ export class AbstractContainer<
       this.instances.set(bindableToken, instance);
     } else if (binding.constantValue) {
       this.instances.set(bindableToken, binding.constantValue);
+    } else if (binding.factoryFunction) {
+      const factory = binding.factoryFunction as () => T;
+
+      return factory();
     }
 
     return this.instances.get(bindableToken);
@@ -133,6 +138,12 @@ export class AbstractContainer<
   public bindSelf(arg: Function) {
     this.bindings.set(Symbol.for(arg.name), {
       classConstructor: arg,
+    });
+  }
+
+  public bindFactory<T = any>(token: AllowedInjectableToken, factory: () => T) {
+    this.bindings.set(this.toSymbolToken(token), {
+      factoryFunction: factory,
     });
   }
 }
